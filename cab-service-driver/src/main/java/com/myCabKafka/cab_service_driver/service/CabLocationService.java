@@ -16,4 +16,25 @@ public class CabLocationService {
         kafkaTemplate.send(AppConstant.CAB_LOCATION,location);
         return true;
     }
+
+    public void simulateCabLocation() throws InterruptedException
+    {
+        int range = 50;
+        while ( range>0 )
+        {
+            String location;
+
+            if (Math.random() < 0.2)
+            {
+                location = "Invalid location of the Cab";
+            }
+            else
+            {
+                location = Math.random()+ "," + Math.random();
+            }
+            updateLocation(location);
+            Thread.sleep(1000);
+            range--;
+        }
+    }
 }

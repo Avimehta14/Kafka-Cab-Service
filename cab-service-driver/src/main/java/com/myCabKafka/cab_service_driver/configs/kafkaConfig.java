@@ -14,4 +14,10 @@ public class kafkaConfig {
     {
         return TopicBuilder.name(AppConstant.CAB_LOCATION).build();
     }
+
+    @Bean
+    public NewTopic myDLQ()
+    {
+        return TopicBuilder.name(AppConstant.CAB_LOCATION_DLQ).build();
+    }
 }
