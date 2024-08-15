@@ -8,7 +8,7 @@ This project simulates a cab service location tracking system using Apache Kafka
 1. **Cab Service Driver:** This component simulates the cab driver's location and sends updates to a Kafka topic.
 2. **Cab Service User:** This component listens to the Kafka topic for location updates and displays the latest location on a minimalistic UI.
 
-Additionally, the project includes a Dead Letter Queue (DLQ) mechanism to handle and process invalid data.
+Additionally, the project includes a Dead Letter Queue (DLQ) mechanism to handle and process invalid data. It also supports mechanism of retrying the failed events in the topics upto set 'n' times
 
 ## Table of Contents
 
