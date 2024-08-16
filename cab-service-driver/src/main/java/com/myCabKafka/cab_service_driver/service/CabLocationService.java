@@ -20,19 +20,12 @@ public class CabLocationService {
     public void simulateCabLocation() throws InterruptedException
     {
         int range = 50;
-        while ( range>0 )
+        while ( range > 0 )
         {
             String location;
             double randomLocation = Math.random();
+            location = String.valueOf(randomLocation);
 
-            if (randomLocation < 0.2)
-            {
-                location = String.valueOf(randomLocation);
-            }
-            else
-            {
-                location = Math.random()+ "," + Math.random();
-            }
             updateLocation(location);
             Thread.sleep(1000);
             range--;
