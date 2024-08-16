@@ -66,12 +66,12 @@ public class DLQLocationService {
 
     private boolean processMessage(String message)
     {
-        return message.matches("[0-9.]+,[0-9]+");
+        return false;
     }
 
     private void esclate(String message , String key)
     {
-        System.err.println("Escalating message"+message);
+        System.err.println("Escalating message"+ message);
         kafkaTemplate.send("escalated-dlq",key,message);
         retryCountMap.remove(key);
     }

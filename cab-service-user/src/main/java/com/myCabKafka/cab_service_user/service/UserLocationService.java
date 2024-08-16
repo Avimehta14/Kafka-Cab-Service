@@ -43,6 +43,7 @@ public class UserLocationService {
 
     private boolean isValidLocation(String location)
     {
-        return location != null && location.matches("^\\d+\\.\\d+,\\d+\\.\\d+$");
+        double val = Double.parseDouble(location);
+        return location != null && val > 0.2;
     }
 }
