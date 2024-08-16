@@ -23,10 +23,11 @@ public class CabLocationService {
         while ( range>0 )
         {
             String location;
+            double randomLocation = Math.random();
 
-            if (Math.random() < 0.2)
+            if (randomLocation < 0.2)
             {
-                location = "Invalid location of the Cab";
+                location = String.valueOf(randomLocation);
             }
             else
             {
