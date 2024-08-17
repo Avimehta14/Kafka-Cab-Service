@@ -52,7 +52,7 @@ Additionally, the project includes a Dead Letter Queue (DLQ) mechanism to handle
   - Includes a method to simulate random location updates, with a 20% chance of sending invalid data.
   
 - **CabLocationController.java**:
-  - REST controller to trigger the simulation of location updates. Accessible via a PUT request.
+  - The REST controller will trigger the simulation of location updates. Accessible via a PUT request.
 
 ### Cab Service User
 
