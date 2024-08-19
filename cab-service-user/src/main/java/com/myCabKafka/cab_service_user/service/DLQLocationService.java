@@ -13,6 +13,6 @@ public class DLQLocationService {
     @KafkaListener(topics = "cab-location-dlq",groupId = "dlq-group")
     public void processFailMessages(String location)
     {
-        System.out.println("Failed Locations"+ location);
+        System.out.println("Failed Locations after retires"+ location);
     }
 }
