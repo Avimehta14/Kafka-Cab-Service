@@ -37,7 +37,7 @@ public class DLQLocationService {
         }
         else
         {
-            esclate(message,key);
+            escalate(message,key);
         }
     }
 
@@ -70,7 +70,7 @@ public class DLQLocationService {
     }
 
     // Custom retry of failed messages
-    private void esclate(String message , String key)
+    private void escalate(String message , String key)
     {
         System.err.println("Escalating message"+ message);
         kafkaTemplate.send("escalated-dlq",key,message);
