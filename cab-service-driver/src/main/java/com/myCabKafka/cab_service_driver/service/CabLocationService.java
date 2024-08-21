@@ -20,7 +20,7 @@ public class CabLocationService {
     public void simulateCabLocation() throws InterruptedException
     {
         int range = 50;
-        while ( range > 0 )
+        while ( range >= 0 )
         {
             String location;
             double randomLocation = Math.random();
