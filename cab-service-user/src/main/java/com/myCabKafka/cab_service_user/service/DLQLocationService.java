@@ -41,7 +41,7 @@ public class DLQLocationService {
         }
     }
 
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRate = 2000)
     private void retryProcessing(String message, String key)
     {
         try {

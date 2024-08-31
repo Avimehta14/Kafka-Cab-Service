@@ -11,10 +11,9 @@ public class CabLocationService {
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
 
-    public boolean updateLocation(String location)
+    public void updateLocation(String location)
     {
         kafkaTemplate.send(AppConstant.CAB_LOCATION,location);
-        return true;
     }
 
     public void simulateCabLocation() throws InterruptedException
