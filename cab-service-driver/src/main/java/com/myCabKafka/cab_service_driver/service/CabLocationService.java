@@ -24,7 +24,6 @@ public class CabLocationService {
             String location;
             double randomLocation = Math.random();
             location = String.valueOf(randomLocation);
-
             updateLocation(location);
             Thread.sleep(1000);
             range--;
