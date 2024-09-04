@@ -20,10 +20,4 @@ public class kafkaConfig {
     {
         return TopicBuilder.name(AppConstant.CAB_LOCATION_DLQ).build();
     }
-
-    @Bean
-    public NewTopic myRetryDLQ ()
-    {
-            return TopicBuilder.name(AppConstant.ESCALATED_DLQ).build();
-    }
 }

@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Service
 public class DLQLocationService {
@@ -18,62 +21,51 @@ public class DLQLocationService {
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
 
-    private Map<String, Integer> retryCountMap = new HashMap<>();
+    private Map<String, Integer> retryCountMap = new ConcurrentHashMap<>();
+    private Queue<ConsumerRecord<String, String>> retryQueue = new ConcurrentLinkedQueue<>();
 
     private static final Logger logger = LoggerFactory.getLogger(DLQLocationService.class);
     private final int MAX_RETRIES = 2;
 
-    @KafkaListener(topics = "cab-location-dlq",groupId = "dlq-group")
-    public void processFailMessages(ConsumerRecord<String , String> record)
-    {
-        String message =record.value();
-        String key = record.key();
-
-        int retires = retryCountMap.getOrDefault(key,0);
-
-        if (retires < MAX_RETRIES)
-        {
-            retryProcessing(message,key);
-        }
-        else
-        {
-            escalate(message,key);
-        }
+    @KafkaListener(topics = "cab-location-dlq", groupId = "dlq-group")
+    public void processFailMessages(ConsumerRecord<String, String> record) {
+        retryQueue.add(record); // Add to retry queue
     }
 
-    @Scheduled(fixedRate = 1000)
-    private void retryProcessing(String message, String key)
-    {
-        try {
+    @Scheduled(fixedRate = 5000) // Run every 5 seconds, adjust as necessary
+    private void processRetryQueue() {
+        ConsumerRecord<String, String> record;
+        while ((record = retryQueue.poll()) != null) {
+            String message = record.value();
+            String key = record.key();
+            int retries = retryCountMap.getOrDefault(key, 0);
 
-            System.out.println("Retrying the message" + message);
-            boolean success= processMessage(message);
+            if (retries < MAX_RETRIES) {
+                try {
+                    logger.info("Retrying message: {}", message);
+                    boolean success = processMessage(message);
 
-            if (success)
-            {
+                    if (success) {
+                        retryCountMap.remove(key);
+                    } else {
+                        retryCountMap.put(key, retries + 1);
+                        retryQueue.add(record); // Add back to the queue for the next retry
+                    }
+                } catch (Exception e) {
+                    logger.error("Error processing message: {}", e.getMessage());
+                    retryCountMap.put(key, retries + 1);
+                    retryQueue.add(record); // Add back to the queue for the next retry
+                }
+            } else {
+                logger.error("Max retries reached for message: {}", message);
                 retryCountMap.remove(key);
             }
-            else
-            {
-                retryCountMap.put(key, retryCountMap.getOrDefault(key,0)+1);
-            }
-        }
-        catch (Exception e)
-        {
-            retryCountMap.put(key, retryCountMap.getOrDefault(key,0)+1);
         }
     }
 
-    private boolean processMessage(String message)
-    {
+    private boolean processMessage(String message) {
+        // Replace with actual processing logic
         return false;
     }
-
-    // Custom retry of failed messages
-    private void escalate(String message , String key)
-    {
-        System.err.println("Escalating message"+ message);
-        kafkaTemplate.send("escalated-dlq",key,message);
-        retryCountMap.remove(key);
-    }
 }
+
