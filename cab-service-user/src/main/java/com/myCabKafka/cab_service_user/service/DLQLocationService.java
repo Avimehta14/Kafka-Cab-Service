@@ -32,9 +32,12 @@ public class DLQLocationService {
     public void handleDlqMessages(ConsumerRecord<String, String> record) {
         String location = record.value();
         retryQueue.add(location);
+        System.out.println("Retrying all failed events in DLQ !!");
+        logger.info("Retruing in DLQ nOw");
+        retryMessages();
     }
 
-    @Scheduled(fixedRate = 10000) // Retry every 10 seconds
+    @Scheduled(fixedRate = 10000)
     public void retryMessages() {
         while (!retryQueue.isEmpty()) {
             String location = retryQueue.poll();

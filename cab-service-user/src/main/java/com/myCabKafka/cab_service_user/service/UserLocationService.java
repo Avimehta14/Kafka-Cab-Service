@@ -45,7 +45,7 @@ public class UserLocationService {
     {
         double val = Double.parseDouble(location);
 
-        if( location != null && val > 0.2)
+        if( location != null && val > 0.5)
         {
             kafkaTemplate.send("final-topic",location);
             return true;

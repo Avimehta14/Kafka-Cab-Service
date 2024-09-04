@@ -18,7 +18,7 @@ public class CabLocationService {
 
     public void simulateCabLocation() throws InterruptedException
     {
-        int range = 5;
+        int range = 2;
         while ( range >= 0 )
         {
             String location;
