@@ -9,63 +9,51 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Service
 public class DLQLocationService {
 
-    @Autowired
-    private KafkaTemplate<String, Object> kafkaTemplate;
-
-    private Map<String, Integer> retryCountMap = new ConcurrentHashMap<>();
-    private Queue<ConsumerRecord<String, String>> retryQueue = new ConcurrentLinkedQueue<>();
-
     private static final Logger logger = LoggerFactory.getLogger(DLQLocationService.class);
-    private final int MAX_RETRIES = 2;
+
+    @Autowired
+    private UserLocationService userLocationService;
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    private final String originalTopic = "cab-location";
+    private final String dlqTopic = "cab-location-dlq";
+
+
+    private final Queue<String> retryQueue = new LinkedList<>();
 
     @KafkaListener(topics = "cab-location-dlq", groupId = "dlq-group")
-    public void processFailMessages(ConsumerRecord<String, String> record) {
-        retryQueue.add(record); // Add to retry queue
+    public void handleDlqMessages(ConsumerRecord<String, String> record) {
+        String location = record.value();
+        retryQueue.add(location);
     }
 
-    @Scheduled(fixedRate = 5000) // Run every 5 seconds, adjust as necessary
-    private void processRetryQueue() {
-        ConsumerRecord<String, String> record;
-        while ((record = retryQueue.poll()) != null) {
-            String message = record.value();
-            String key = record.key();
-            int retries = retryCountMap.getOrDefault(key, 0);
+    @Scheduled(fixedRate = 10000) // Retry every 10 seconds
+    public void retryMessages() {
+        while (!retryQueue.isEmpty()) {
+            String location = retryQueue.poll();
 
-            if (retries < MAX_RETRIES) {
-                try {
-                    logger.info("Retrying message: {}", message);
-                    boolean success = processMessage(message);
-
-                    if (success) {
-                        retryCountMap.remove(key);
-                    } else {
-                        retryCountMap.put(key, retries + 1);
-                        retryQueue.add(record); // Add back to the queue for the next retry
-                    }
-                } catch (Exception e) {
-                    logger.error("Error processing message: {}", e.getMessage());
-                    retryCountMap.put(key, retries + 1);
-                    retryQueue.add(record); // Add back to the queue for the next retry
+            try {
+                if (userLocationService.isValidLocation(location)) {
+                    logger.info(" Messaged processd from the DLQ on retrying");
+                } else {
+                    double val = Double.parseDouble(location);
+                    val = val+1;
+                    location = String.valueOf(val);
+                    logger.error("Still Invalid Location format: {}", location);
+                    kafkaTemplate.send(dlqTopic, location);
                 }
-            } else {
-                logger.error("Max retries reached for message: {}", message);
-                retryCountMap.remove(key);
+            } catch (Exception e) {
+                logger.error("Catch : Error processing DLQ message: {}", e.getMessage());
+                kafkaTemplate.send(dlqTopic, location);
             }
         }
-    }
-
-    private boolean processMessage(String message) {
-        // Replace with actual processing logic
-        return false;
     }
 }
 

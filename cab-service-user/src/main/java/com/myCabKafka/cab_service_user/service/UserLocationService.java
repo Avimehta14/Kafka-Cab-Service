@@ -41,9 +41,17 @@ public class UserLocationService {
         kafkaTemplate.send("cab-location-dlq",location);
     }
 
-    private boolean isValidLocation(String location)
+    public boolean isValidLocation(String location)
     {
         double val = Double.parseDouble(location);
-        return location != null && val > 0.2;
+
+        if( location != null && val > 0.2)
+        {
+            kafkaTemplate.send("final-topic",location);
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

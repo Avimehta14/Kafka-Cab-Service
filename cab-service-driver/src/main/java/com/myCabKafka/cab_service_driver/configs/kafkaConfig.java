@@ -20,4 +20,10 @@ public class kafkaConfig {
     {
         return TopicBuilder.name(AppConstant.CAB_LOCATION_DLQ).build();
     }
+
+    @Bean
+    public NewTopic finalresults()
+    {
+        return TopicBuilder.name(AppConstant.FINAL_TOPIC).build();
+    }
 }
