@@ -37,7 +37,7 @@ public class DLQLocationService {
         retryMessages();
     }
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 20000)
     public void retryMessages() {
         while (!retryQueue.isEmpty()) {
             String location = retryQueue.poll();
