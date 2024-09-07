@@ -47,7 +47,7 @@ public class DLQLocationService {
                     logger.info(" Messaged processd from the DLQ on retrying");
                 } else {
                     double val = Double.parseDouble(location);
-                    val = val+1;
+                    val = val+2;
                     location = String.valueOf(val);
                     logger.error("Still Invalid Location format: {}", location);
                     kafkaTemplate.send(dlqTopic, location);
